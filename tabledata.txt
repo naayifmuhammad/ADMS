@@ -79,3 +79,71 @@ CREATE TABLE `CUSTOMER` (
 
 INSERT INTO `CUSTOMER` VALUES (1,'John','Kochi'),(2,'James','Kochi'),(6,'McCoy','Kollam'),(101,'Anil','Bombay');
 
+
+
+
+
+
+
+TABLE DATA QUERY LIST:
+
+1. mysql> select c.cname from CUSTOMER c where c.city="kochi";
++-------+
+| cname |
++-------+
+| John  |
+| James |
+_________
+
+2. SELECT * from BRANCH where city="MG_ROAD";
++-----+------------+---------+
+| bid | bname      | city    |
++-----+------------+---------+
+|   1 | MG_Branch  | MG_Road |
+|   2 | MG_Branch2 | MG_Road |
+|   3 | MG_Branch3 | MG_Road |
++-----+------------+---------+
+
+3. select c.cname from CUSTOMER c join BORROWER b on c.cid=b.cid WHERE c.city="Calicut";
++--------+
+| cname  |
++--------+
+| soumya |
++--------+
+1 row in set (0.00 sec)
+
+4.  select c.cname from CUSTOMER c join BORROWER b on c.cid=b.cid WHERE c.city="Calicut";
++--------+
+| cname  |
++--------+
+| soumya |
++--------+
+1 row in set (0.00 sec)
+
+
+5. select cname from CUSTOMER c join ACCOUNT a on c.cid=a.cid join(select bid, AVG(amount) from ACCOUNT group by bid having avg(amount)>=32
+000) b on a.bid=b.bid;
++-------+
+| cname |
++-------+
+| James |
+| James |
++-------+
+2 rows in set (0.01 sec)
+
+
+6. select b.bid, b.bname from BRANCH b join ACCOUNT a on a.bid=b.bid group by a.bid having sum(amount)>5000;
++-----+---------------+
+| bid | bname         |
++-----+---------------+
+|   1 | MG_Branch     |
+|   5 | PremiumBranch |
++-----+---------------+
+2 rows in set (0.01 sec)
+
+
+7. 
+
+
+
+
