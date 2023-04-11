@@ -1,0 +1,81 @@
+-- MySQL dump 10.13  Distrib 5.7.33, for Linux (x86_64)
+--
+-- Host: localhost    Database: bank
+-- ------------------------------------------------------
+
+-- Table structure for table `ACCOUNT`
+--
+
+CREATE TABLE `ACCOUNT` (
+  `accno` int(11) NOT NULL,
+  `cid` int(11) DEFAULT NULL,
+  `bid` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `adate` date DEFAULT NULL,
+  PRIMARY KEY (`accno`),
+  KEY `cid` (`cid`),
+  KEY `bid` (`bid`),
+  CONSTRAINT `ACCOUNT_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `CUSTOMER` (`cid`),
+  CONSTRAINT `ACCOUNT_ibfk_2` FOREIGN KEY (`bid`) REFERENCES `BRANCH` (`bid`)
+)
+
+
+INSERT INTO `ACCOUNT` VALUES (1,1,1,10000.00,'2004-04-20'),(2,1,1,11000.00,'2004-04-20'),(3,2,5,100000.00,'2004-04-20'),(4,2,5,150000.00,'2004-04-20'),(101,101,101,4500.00,'2004-04-20');
+
+
+CREATE TABLE `BORROWER` (
+  `loanno` int(11) NOT NULL,
+  `cid` int(11) DEFAULT NULL,
+  `bid` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`loanno`),
+  KEY `cid` (`cid`),
+  KEY `bid` (`bid`),
+  CONSTRAINT `BORROWER_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `CUSTOMER` (`cid`),
+  CONSTRAINT `BORROWER_ibfk_2` FOREIGN KEY (`bid`) REFERENCES `BRANCH` (`bid`)
+) 
+
+
+
+
+-- Table structure for table `BRANCH`
+
+
+
+CREATE TABLE `BRANCH` (
+  `bid` int(11) NOT NULL,
+  `bname` varchar(50) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`bid`)
+)
+
+
+
+INSERT INTO `BRANCH` VALUES (1,'MG_Branch','MG_Road'),(2,'MG_Branch2','MG_Road'),(3,'MG_Branch3','MG_Road'),(4,'MG_Branch4','TK_Road'),(5,'PremiumBranch','Premium_Road'),(101,'poor branch','Back Street');
+
+
+
+
+--
+-- Table structure for table `CUSTOMER`
+--
+
+
+
+
+CREATE TABLE `CUSTOMER` (
+  `cid` int(11) NOT NULL,
+  `cname` varchar(50) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`cid`)
+)
+
+--
+-- Dumping data for table `CUSTOMER`
+--
+
+
+
+
+INSERT INTO `CUSTOMER` VALUES (1,'John','Kochi'),(2,'James','Kochi'),(6,'McCoy','Kollam'),(101,'Anil','Bombay');
+
