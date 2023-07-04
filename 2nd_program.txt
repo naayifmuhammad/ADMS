@@ -1,0 +1,210 @@
+1. select e.employee_id,e.first_name,e.last_name from employees e join department d on e.department_id=d.department_id where location_id=1700 ;
+
++-------------+------------+-----------+
+| employee_id | first_name | last_name |
++-------------+------------+-----------+
+|         104 | Neil       | Patrick   |
+|         105 | Michael    | Jacob     |
+|         201 | Smith      | Anderson  |
++-------------+------------+-----------+
+3 rows in set (0.0006 sec)
+
+2. select e.employee_id,e.first_name,e.last_name from employees e left join department d on e.department_id=d.department_id where location_id!=1700;
+
++-------------+------------+-----------+
+| employee_id | first_name | last_name |
++-------------+------------+-----------+
+|         100 | Dave       | Patel     |
+|         101 | Taylor     | Smith     |
+|         103 | Devi       | Kumar     |
++-------------+------------+-----------+
+3 rows in set (0.0011 sec)
+
+
+3.select e.employee_id,e.first_name,e.last_name from employees e where e.salary=(select max(salary) from employees);
++-------------+------------+-----------+
+| employee_id | first_name | last_name |
++-------------+------------+-----------+
+|         100 | Dave       | Patel     |
+|         201 | Smith      | Anderson  |
++-------------+------------+-----------+
+2 rows in set (0.0074 sec)
+
+4. select e.employee_id,e.first_name,e.last_name,e.salary from employees e where e.salary >(select avg(salary) as avgSal from employees);
++-------------+------------+-----------+--------+
+| employee_id | first_name | last_name | salary |
++-------------+------------+-----------+--------+
+|         100 | Dave       | Patel     |  16000 |
+|         101 | Taylor     | Smith     |  15000 |
+|         201 | Smith      | Anderson  |  16000 |
++-------------+------------+-----------+--------+
+3 rows in set (0.0010 sec)
+
+5.  SELECT d.department_id, d.department_name FROM department d JOIN employees e ON d.department_id = e.department_id WHERE e.salary > 10000 GROUP BY d.department_id;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             3 | Human Resources |
+|             1 | Finance         |
+|             2 | Marketing       |
++---------------+-----------------+
+3 rows in set (0.0007 sec)
+
+6. SELECT d.department_id, d.department_name FROM department d LEFT JOIN employees e ON d.department_id = e.department_id AND e.salary < 10000 where e.employee_id is not null group by d.department_id,d.department_name;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Marketing       |
++---------------+-----------------+
+1 row in set (0.0013 sec)
+
+7. select e.employee_id,e.first_name,e.last_name,e.salary from employees e where e.salary> ALL (select min(salary) from employees group by department_id);
++-------------+------------+-----------+--------+
+| employee_id | first_name | last_name | salary |
++-------------+------------+-----------+--------+
+|         103 | Devi       | Kumar     |  19000 |
++-------------+------------+-----------+--------+
+1 row in set (0.0013 sec)
+
+8. select e.employee_id,e.first_name,e.last_name,e.salary from employees e where e.salary>= All (select max(salary) from employees group by department_id);
++-------------+------------+-----------+--------+
+| employee_id | first_name | last_name | salary |
++-------------+------------+-----------+--------+
+|         103 | Devi       | Kumar     |  19000 |
++-------------+------------+-----------+--------+
+1 row in set (0.0013 sec)
+
+9. select avg(sub.avgSalary) as 'Average salary' from (select avg(e.salary) as avgSalary from employees e group by e.department_id) sub ;
++----------------+
+| Average salary |
++----------------+
+| 13166.66666667 |
++----------------+
+1 row in set (0.0012 sec)   
+
+10. select e.employee_id,e.first_name,e.salary,salary-(select avg(salary) from  employees where department_id=e.department_id) as 'Salary difference' from employees e;
++-------------+------------+--------+-------------------+
+| employee_id | first_name | salary | Salary difference |
++-------------+------------+--------+-------------------+
+|         100 | Dave       |  16000 |        -1500.0000 |
+|         101 | Taylor     |  15000 |            0.0000 |
+|         103 | Devi       |  19000 |         1500.0000 |
+|         104 | Neil       |   9000 |         2000.0000 |
+|         105 | Michael    |   6000 |        -1000.0000 |
+|         201 | Smith      |   6000 |        -1000.0000 |
++-------------+------------+--------+-------------------+
+6 rows in set (0.0013 sec)
+
+11. select e.employee_id,e.first_name,e.salary,(select avg(salary) from employees where department_id=e.department_id) as AverageSalary from employees e where e.salary>(select avg(salary) from employees where department_id=e.department_id);
++-------------+------------+--------+---------------+
+| employee_id | first_name | salary | AverageSalary |
++-------------+------------+--------+---------------+
+|         103 | Devi       |  19000 |    17500.0000 |
+|         104 | Neil       |   9000 |     7000.0000 |
++-------------+------------+--------+---------------+
+2 rows in set (0.0013 sec)
+
+12.  select e.employee_id,e.first_name from employees e left join dependents d on e.employee_id=d.employee_id where d.dependent_id is not null;
++-------------+------------+
+| employee_id | first_name |
++-------------+------------+
+|         100 | Dave       |
+|         103 | Devi       |
++-------------+------------+
+2 rows in set (0.0009 sec)
+
+13. SELECT     e.first_name,     e.last_name,     d.department_name FROM     employees e JOIN     department d ON e.department_id = d.department_id WHERE     d.department_id IN (1, 2, 3);
++------------+-----------+-----------------+
+| first_name | last_name | department_name |
++------------+-----------+-----------------+
+| Taylor     | Smith     | Finance         |
+| Neil       | Patrick   | Marketing       |
+| Michael    | Jacob     | Marketing       |
+| Smith      | Anderson  | Marketing       |
+| Dave       | Patel     | Human Resources |
+| Devi       | Kumar     | Human Resources |
++------------+-----------+-----------------+
+6 rows in set (0.0012 sec)
+
+14. SELECT e.first_name, e.last_name,(select job_title from jobs where job_id=e.job_id) as 'Job Title', d.department_name FROM employees e JOIN     department d ON e.department_id = d.department_id WHERE d.department_id IN (1, 2, 3) AND e.salary>10000;
++------------+-----------+-----------+-----------------+
+| first_name | last_name | Job Title | department_name |
++------------+-----------+-----------+-----------------+
+| Taylor     | Smith     | Manager   | Finance         |
+| Dave       | Patel     | Manager   | Human Resources |
+| Devi       | Kumar     | Manager   | Human Resources |
++------------+-----------+-----------+-----------------+
+3 rows in set (0.0016 sec)
+
+15. select dl.department_name,dl.street_address,dl.postal_code,c.country_name from (select d.department_name,l.street_address,l.postal_code,l.country_id from department d join locations l on d.location_id=l.location_id) dl join countries c on dl.country_id = c.country_id;
++-----------------+----------------------------+-------------+--------------+
+| department_name | street_address             | postal_code | country_name |
++-----------------+----------------------------+-------------+--------------+
+| Human Resources | 1st Floor, Armenian Street |      600001 | India        |
+| Finance         | 1st Floor, Armenian Street |      600001 | India        |
+| Marketing       | Arya Samaj Road            |      110059 | India        |
++-----------------+----------------------------+-------------+--------------+
+3 rows in set (0.0011 sec)
+
+16. SELECT e.first_name, e.last_name, e.department_id, d.department_name, CASE WHEN e.department_id IS NOT NULL THEN 'True' ELSE 'False' END AS 'Is in a department' FROM employees e LEFT JOIN department d ON e.department_id = d.department_id;
++------------+-----------+---------------+-----------------+--------------------+
+| first_name | last_name | department_id | department_name | Is in a department |
++------------+-----------+---------------+-----------------+--------------------+
+| Dave       | Patel     |             3 | Human Resources | True               |
+| Taylor     | Smith     |             1 | Finance         | True               |
+| Devi       | Kumar     |             3 | Human Resources | True               |
+| Neil       | Patrick   |             2 | Marketing       | True               |
+| Michael    | Jacob     |             2 | Marketing       | True               |
+| Smith      | Anderson  |             2 | Marketing       | True               |
++------------+-----------+---------------+-----------------+--------------------+
+6 rows in set (0.0013 sec)
+
+17.  select ed.first_name,ed.last_name,ed.department_name,l.city,l.state_province from (select e.first_name,e.last_name,d.department_name,d.location_id from employees e join department d on e.department_id=d.department_id) ed join locations l on ed.location_id=l.location_id where ed.first_name like 'Z%';
+Empty set (0.0012 sec)
+
+18. select e.first_name,e.last_name,d.department_id,d.department_name from employees e left join department d on e.department_id=d.department_id union select e.first_name,e.last_name,d.department_id,d.department_name from employees e right join department d on e.department_id=d.department_id ;
++------------+-----------+---------------+-----------------+
+| first_name | last_name | department_id | department_name |
++------------+-----------+---------------+-----------------+
+| Dave       | Patel     |             3 | Human Resources |
+| Taylor     | Smith     |             1 | Finance         |
+| Devi       | Kumar     |             3 | Human Resources |
+| Neil       | Patrick   |             2 | Marketing       |
+| Michael    | Jacob     |             2 | Marketing       |
+| Smith      | Anderson  |             2 | Marketing       |
+| Zack       | Taylor    |          NULL | NULL            |
+| NULL       | NULL      |             4 | Tech Support    |
++------------+-----------+---------------+-----------------+
+8 rows in set (0.0008 sec)
+
+19. select empData.first_name,empData.manager_name from (select e.first_name,(select first_name from employees  where employee_id=e.manager_id)as manager_name from employees e)empData;
++------------+--------------+
+| first_name | manager_name |
++------------+--------------+
+| Dave       | NULL         |
+| Taylor     | NULL         |
+| Devi       | NULL         |
+| Neil       | NULL         |
+| Michael    | Devi         |
+| Smith      | NULL         |
+| Zack       | Taylor       |
++------------+--------------+
+7 rows in set (0.0010 sec)
+
+
+23. create view delhi_employee_data as select ej.employee_id,ej.phone_number,ej.job_title,d.department_name,ej.manager_name from ( select e.employee_id,e.department_id,e.phone_number,j.job_title,(select concat(first_name, ' ' ,last_name) as fullname from employees where employee_id=e.manager_id) as manager_name from employees e join jobs j on j.job_id=e.job_id) ej join department d on d.department_id=ej.department_id ;
+Query OK, 0 rows affected (0.0095 sec)
+
+select * from delhi_employee_data ;
++-------------+--------------+-------------------+-----------------+--------------+
+| employee_id | phone_number | job_title         | department_name | manager_name |
++-------------+--------------+-------------------+-----------------+--------------+
+|         101 |     10101010 | Manager           | Finance         | NULL         |
+|         104 |       100009 | Software Engineer | Marketing       | NULL         |
+|         105 |      1000100 | Data Entry Clerk  | Marketing       | Devi Kumar   |
+|         201 |      1010220 | Manager           | Marketing       | NULL         |
+|         100 |       100007 | Manager           | Human Resources | NULL         |
+|         103 |       100008 | Manager           | Human Resources | NULL         |
++-------------+--------------+-------------------+-----------------+--------------+
+6 rows in set (0.0012 sec)
+
