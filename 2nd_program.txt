@@ -191,20 +191,98 @@ Empty set (0.0012 sec)
 +------------+--------------+
 7 rows in set (0.0010 sec)
 
+20. select e.first_name,e.last_name,d.department_id from employees e join department d on e.department_id=d.department_id where d.department_id=(select department_id from employees where last_name like 'Taylor') ;
++------------+-----------+---------------+
+| first_name | last_name | department_id |
++------------+-----------+---------------+
+| Taylor     | Smith     |             1 |
+| Stephan    | Taylor    |             1 |
++------------+-----------+---------------+
+2 rows in set (0.0009 sec)
 
-23. create view delhi_employee_data as select ej.employee_id,ej.phone_number,ej.job_title,d.department_name,ej.manager_name from ( select e.employee_id,e.department_id,e.phone_number,j.job_title,(select concat(first_name, ' ' ,last_name) as fullname from employees where employee_id=e.manager_id) as manager_name from employees e join jobs j on j.job_id=e.job_id) ej join department d on d.department_id=ej.department_id ;
-Query OK, 0 rows affected (0.0095 sec)
+21. select job_title,full_name,salary_difference from (select j.job_title,concat(e.first_name,' ',last_name) as full_name,j.max_salary-e.salary as salary_difference from employees e join jobs j on j.job_id=e.job_id) ej;
++---------------------+----------------+-------------------+
+| job_title           | full_name      | salary_difference |
++---------------------+----------------+-------------------+
+| Software Engineer   | Neil Patrick   |              6000 |
+| Software Engineer   | Stephan Taylor |              3000 |
+| Data Entry Clerk    | Michael Jacob  |              1000 |
+| Executive assistant | Zack Damon     |             -3000 |
+| Manager             | Dave Patel     |              4000 |
+| Manager             | Taylor Smith   |              5000 |
+| Manager             | Devi Kumar     |              1000 |
+| Manager             | Smith Anderson |             14000 |
++---------------------+----------------+-------------------+
+8 rows in set (0.0012 sec)
 
-select * from delhi_employee_data ;
-+-------------+--------------+-------------------+-----------------+--------------+
-| employee_id | phone_number | job_title         | department_name | manager_name |
-+-------------+--------------+-------------------+-----------------+--------------+
-|         101 |     10101010 | Manager           | Finance         | NULL         |
-|         104 |       100009 | Software Engineer | Marketing       | NULL         |
-|         105 |      1000100 | Data Entry Clerk  | Marketing       | Devi Kumar   |
-|         201 |      1010220 | Manager           | Marketing       | NULL         |
-|         100 |       100007 | Manager           | Human Resources | NULL         |
-|         103 |       100008 | Manager           | Human Resources | NULL         |
-+-------------+--------------+-------------------+-----------------+--------------+
+22. Write a SQL query to calculate the average salary, the number of employees receiving
+commissions in that department. Return department name, average salary and number
+of employees of all departments. (Pending)
+
+23. create view delhi_employees as select ej.name,ej.employee_id,ej.phone_number,ej.job_title,d.department_name,ej.manager_name from ( select concat(e.first_name,' ',e.last_name) as name,e.employee_id,e.department_id,e.phone_number,j.job_title,(select concat(first_name, ' ' ,last_name) as fullname from employees where employee_id=e.manager_id) as manager_name from employees e join jobs j on j.job_id=e.job_id) ej join department d on d.department_id=ej.department_id ;
+
+select * from delhi_employees ;
++----------------+-------------+--------------+-------------------+-----------------+--------------+
+| name           | employee_id | phone_number | job_title         | department_name | manager_name |
++----------------+-------------+--------------+-------------------+-----------------+--------------+
+| Stephan Taylor |         205 |    123123123 | Software Engineer | Finance         | NULL         |
+| Taylor Smith   |         101 |     10101010 | Manager           | Finance         | NULL         |
+| Neil Patrick   |         104 |       100009 | Software Engineer | Marketing       | NULL         |
+| Michael Jacob  |         105 |      1000100 | Data Entry Clerk  | Marketing       | Devi Kumar   |
+| Smith Anderson |         201 |      1010220 | Manager           | Marketing       | NULL         |
+| Dave Patel     |         100 |       100007 | Manager           | Human Resources | NULL         |
+| Devi Kumar     |         103 |       100008 | Manager           | Human Resources | NULL         |
++----------------+-------------+--------------+-------------------+-----------------+--------------+
+7 rows in set (0.0013 sec)
+
+24. Use the above created view to obtain the names of employees whose job title is
+‘Manager’ and department is ‘Finance’.
+
+select name from delhi_employees where job_title like 'manager' and department_name like 'finance';
++--------------+
+| name         |
++--------------+
+| Taylor Smith |
++--------------+
+1 row in set (0.0009 sec)
+
+
+
+25. Check whether it is possible to update the phone number of employee whose first
+name is ‘Smith’ by using the above created view.
+
+update delhi_employees set phone_number=121121121 where name like 'Smith%';
+ERROR: 1288: The target table delhi_employees of the UPDATE is not updatable
+
+
+26. select e.employee_id,e.first_name,e.last_name,e.email,e.phone_number,e.hire_date,e.job_id,e.salary,e.manager_id,e.department_id,d.dependent_id from employees e left join dependents d on d.employee_id=e.employee_id where dependent_id is null;
++-------------+------------+-----------+--------------------+--------------+------------+--------+--------+------------+---------------+--------------+
+| employee_id | first_name | last_name | email              | phone_number | hire_date  | job_id | salary | manager_id | department_id | dependent_id |
++-------------+------------+-----------+--------------------+--------------+------------+--------+--------+------------+---------------+--------------+
+|         101 | Taylor     | Smith     | taysmith@gmail.com |     10101010 | 2023-06-13 |      4 |  15000 |       NULL |             1 |         NULL |
+|         104 | Neil       | Patrick   | neil@gmail.com     |       100009 | 2023-06-13 |      1 |   9000 |       NULL |             2 |         NULL |
+|         105 | Michael    | Jacob     | michael@gmail.com  |      1000100 | 2023-06-13 |      2 |   6000 |        103 |             2 |         NULL |
+|         201 | Smith      | Anderson  | smithy@gmail.com   |      1010220 | 2023-06-13 |      4 |   6000 |       NULL |             2 |         NULL |
+|         204 | Zack       | Damon     | zacku@gmail.com    |    138138138 | 2023-07-04 |      3 |  11000 |        101 |          NULL |         NULL |
+|         205 | Stephan    | Taylor    | steph@gmail.com    |    123123123 | 2023-07-05 |      1 |  12000 |       NULL |             1 |         NULL |
++-------------+------------+-----------+--------------------+--------------+------------+--------+--------+------------+---------------+--------------+
 6 rows in set (0.0012 sec)
 
+27. Display the details of employee whose manager id is 101 or 201. (Use Union Clause)
+select employee_id,first_name,last_name,email,phone_number,manager_id from employees where manager_id=101 union  select employee_id,first_name,last_name,email,phone_number,manager_id from employees where manager_id=201;
++-------------+------------+-----------+-----------------+--------------+------------+
+| employee_id | first_name | last_name | email           | phone_number | manager_id |
++-------------+------------+-----------+-----------------+--------------+------------+
+|         204 | Zack       | Damon     | zacku@gmail.com |    138138138 |        101 |
+|         104 | Neil       | Patrick   | neil@gmail.com  |       100009 |        201 |
++-------------+------------+-----------+-----------------+--------------+------------+
+2 rows in set (0.0010 sec)
+
+28. select ed.employee_id,ed.first_name,ed.last_name,count(ed.employee_id) as No_of_Dependents from (select e.employee_id,e.first_name,e.last_name,d.dependent_id from employees e join dependents d on e.employee_id=d.employee_id) ed group by e.employee_id having No_of_Dependents>=1; 
++-------------+------------+-----------+------------------+
+| employee_id | first_name | last_name | No_of_Dependents |
++-------------+------------+-----------+------------------+
+|         100 | Dave       | Patel     |                1 |
+|         103 | Devi       | Kumar     |                1 |
++-------------+------------+-----------+------------------+
+2 rows in set (0.0008 sec)
